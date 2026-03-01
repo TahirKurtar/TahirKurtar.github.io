@@ -3,7 +3,7 @@
    GitHub API + Medium RSS + Kaggle (static)
 ───────────────────────────────*/
 const GITHUB_USER = 'TahirKurtar';
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = '';
 const MEDIUM_USER = '@tahirkurtar';
 
 /* ── Pinned Medium yazıları — yeni pinli yazı eklemek için URL'yi buraya ekle ── */
