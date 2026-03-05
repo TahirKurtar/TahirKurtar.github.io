@@ -3,7 +3,7 @@
    GitHub API + Medium RSS + Kaggle (static)
 ───────────────────────────────*/
 const GITHUB_USER = 'TahirKurtar';
-const GITHUB_TOKEN = '';
+const GITHUB_TOKEN = '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';
 const MEDIUM_USER = '@tahirkurtar';
 
 /* ── Pinned Medium yazıları — yeni pinli yazı eklemek için URL'yi buraya ekle ── */
@@ -82,6 +82,30 @@ window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
   nav.classList.toggle('scrolled', window.scrollY > 40);
 });
+
+
+/* ════════════════════════════
+   THEME TOGGLE
+════════════════════════════ */
+
+/* ════════════════════════════
+   THEME TOGGLE
+════════════════════════════ */
+(function initTheme() {
+  const saved = localStorage.getItem('tk-theme');
+  if (saved === 'light') document.body.classList.add('light-theme');
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('tk-theme', isLight ? 'light' : 'dark');
+      });
+    }
+  });
+})();
 
 /* ── Floating particles ── */
 (function spawnParticles() {
