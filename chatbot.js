@@ -386,12 +386,10 @@ Tahir's graduation project is a systematic comparative evaluation of 5 GAN-based
     showTyping();
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
           system: CHATBOT_SYSTEM_PROMPT,
           messages: history,
         }),
