@@ -3,7 +3,7 @@
    GitHub API + Medium RSS + Kaggle (static)
 ───────────────────────────────*/
 const GITHUB_USER = 'TahirKurtar';
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = '';
 const MEDIUM_USER = '@tahirkurtar';
 
 /* ── Pinned Medium yazıları — yeni pinli yazı eklemek için URL'yi buraya ekle ── */
@@ -24,7 +24,7 @@ function isPinned(url) {
   }
 }
 
-/* ── Kaggle projeleri — link eklemek/çıkarmak için sadece buraya bak ── */
+/* ── Kaggle projeleri ── */
 const KAGGLE_PROJECTS = [
   {
     title: 'Fundamentals of Biomedical Signal Processing Proje',
@@ -58,23 +58,12 @@ const KAGGLE_PROJECTS = [
   }
 ];
 
-
-
 /* ── Language color map ── */
 const LANG_COLORS = {
-  Python: '#3572A5',
-  JavaScript: '#f1e05a',
-  TypeScript: '#2b7489',
-  Jupyter: '#DA5B0B',
-  R: '#198CE7',
-  HTML: '#e34c26',
-  CSS: '#563d7c',
-  Shell: '#89e051',
-  Go: '#00ADD8',
-  Rust: '#dea584',
-  C: '#555555',
-  'C++': '#f34b7d',
-  Java: '#b07219',
+  Python: '#3572A5', JavaScript: '#f1e05a', TypeScript: '#2b7489',
+  Jupyter: '#DA5B0B', R: '#198CE7', HTML: '#e34c26', CSS: '#563d7c',
+  Shell: '#89e051', Go: '#00ADD8', Rust: '#dea584', C: '#555555',
+  'C++': '#f34b7d', Java: '#b07219',
 };
 
 /* ── Navbar scroll effect ── */
@@ -83,11 +72,6 @@ window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 40);
 });
 
-
-/* ════════════════════════════
-   THEME TOGGLE
-════════════════════════════ */
-
 /* ════════════════════════════
    THEME TOGGLE
 ════════════════════════════ */
@@ -95,17 +79,25 @@ window.addEventListener('scroll', () => {
   const saved = localStorage.getItem('tk-theme');
   if (saved === 'light') document.body.classList.add('light-theme');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('themeToggle');
-    if (btn) {
-      btn.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        const isLight = document.body.classList.contains('light-theme');
-        localStorage.setItem('tk-theme', isLight ? 'light' : 'dark');
-      });
-    }
-  });
+  const btn = document.getElementById('themeToggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      localStorage.setItem('tk-theme', isLight ? 'light' : 'dark');
+    });
+  }
 })();
+
+
+/* ── Scroll progress bar ── */
+window.addEventListener('scroll', () => {
+  const bar = document.getElementById('scrollProgress');
+  if (bar) {
+    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    bar.style.width = scrolled + '%';
+  }
+});
 
 /* ── Floating particles ── */
 (function spawnParticles() {
@@ -130,6 +122,12 @@ window.addEventListener('scroll', () => {
    MOUSE CANVAS PARTICLE SYSTEM
 ════════════════════════════ */
 (function initMouseCanvas() {
+  // Mobil cihazlarda mouse canvas devre dışı
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    const canvas = document.getElementById('mouseCanvas');
+    if (canvas) canvas.style.display = 'none';
+    return;
+  }
   const canvas = document.getElementById('mouseCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -163,10 +161,8 @@ window.addEventListener('scroll', () => {
       this.color = `hsla(${hue},90%,95%,`;
     }
     update() {
-      this.x += this.vx;
-      this.y += this.vy;
-      this.vx *= 0.97;
-      this.vy *= 0.97;
+      this.x += this.vx; this.y += this.vy;
+      this.vx *= 0.97; this.vy *= 0.97;
       this.life -= this.decay;
     }
     draw() {
@@ -197,19 +193,15 @@ window.addEventListener('scroll', () => {
   loop();
 })();
 
-/* ── Utility: truncate text ── */
+/* ── Utility functions ── */
 function truncate(str, n) {
   if (!str) return '';
-  return str.length > n ? str.slice(0, n) + '…' : str;
+  return str.length > n ? str.slice(0, n) + '\u2026' : str;
 }
-
-/* ── Utility: format numbers ── */
 function fmt(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
   return n;
 }
-
-/* ── Utility: time ago ── */
 function timeAgo(dateStr) {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
   if (diff < 60) return 'just now';
@@ -219,8 +211,6 @@ function timeAgo(dateStr) {
   if (diff < 31536000) return Math.floor(diff / 2592000) + 'mo ago';
   return Math.floor(diff / 31536000) + 'y ago';
 }
-
-
 
 /* ════════════════════════════
    GITHUB
@@ -299,7 +289,6 @@ function buildMediumCard(item, idx) {
   const pubDate = item.pubDate
     ? new Date(item.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     : '';
-
   const card = document.createElement('a');
   card.href = item.link;
   card.target = '_blank';
@@ -337,26 +326,20 @@ async function fetchMedium() {
   const container = document.getElementById('mediumCards');
   const rssUrl = encodeURIComponent(`https://medium.com/feed/${MEDIUM_USER}`);
   const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=10`;
-
   try {
     const res = await fetch(apiUrl);
     const data = await res.json();
     if (data.status !== 'ok') throw new Error('RSS conversion error');
     container.innerHTML = '';
-
     const items = data.items || [];
     if (items.length === 0) {
       container.innerHTML = `<div class="error-card">No Medium articles found yet.</div>`;
       return;
     }
-
-    // Pinned yazılar önce, geri kalanlar tarih sırasıyla
     const pinnedItems = items.filter(item => isPinned(item.link));
     const otherItems  = items.filter(item => !isPinned(item.link));
-
     pinnedItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, idx)));
     otherItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, pinnedItems.length + idx)));
-
   } catch (err) {
     console.error(err);
     container.innerHTML = `
@@ -374,7 +357,6 @@ async function fetchMedium() {
 function renderKaggle() {
   const container = document.getElementById('kaggleCards');
   container.innerHTML = '';
-
   KAGGLE_PROJECTS.forEach((project, idx) => {
     const card = document.createElement('a');
     card.href = project.url;
@@ -401,6 +383,7 @@ function renderKaggle() {
     container.appendChild(card);
   });
 }
+
 /* ════════════════════════════
    INIT
 ════════════════════════════ */
