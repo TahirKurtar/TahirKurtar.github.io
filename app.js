@@ -222,7 +222,7 @@ async function fetchGitHub() {
     const headers = {};
     if (GITHUB_TOKEN) headers['Authorization'] = `token ${GITHUB_TOKEN}`;
     const res = await fetch(
-      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=9&type=public`,
+      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=100&type=public`,
       { headers }
     );
     if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
@@ -232,7 +232,7 @@ async function fetchGitHub() {
       .filter(r => !r.fork)
       .filter(r => !['TahirKurtar', 'TahirKurtar.github.io'].includes(r.name))
       .sort((a, b) => b.stargazers_count - a.stargazers_count)
-      .slice(0, 8);
+      .slice(0, 20);
     if (sorted.length === 0) {
       container.innerHTML = `<div class="error-card">No public repositories found yet.</div>`;
       return;
