@@ -255,7 +255,7 @@ async function fetchGitHub() {
             <span class="card-source">github.com / ${GITHUB_USER}</span>
           </div>
           <h3 class="card-title">${repo.name}</h3>
-          <p class="card-desc">${truncate(repo.description || 'No description.', 120)}</p>
+          <p class="card-desc">${repo.description || 'No description.'}</p>
           ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
         </div>
         <div class="card-footer">
