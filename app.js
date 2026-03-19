@@ -34,7 +34,7 @@ const KAGGLE_PROJECTS = [
   },
   {
     title: 'Project-1',
-    url : 'https://www.kaggle.com/code/tahirkurtar/project-1',
+    url: 'https://www.kaggle.com/code/tahirkurtar/project-1',
     description: 'Projem benim',
     tags: ['Python', 'Proje'],
   },
@@ -218,15 +218,18 @@ function timeAgo(dateStr) {
 async function fetchGitHub() {
   const container = document.getElementById('githubCards');
   try {
+    const headers = {};
+    if (GITHUB_TOKEN) headers['Authorization'] = `token ${GITHUB_TOKEN}`;
     const res = await fetch(
       `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=9&type=public`,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
+      { headers }
     );
     if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
     const repos = await res.json();
     container.innerHTML = '';
     const sorted = repos
       .filter(r => !r.fork)
+      .filter(r => !['TahirKurtar', 'TahirKurtar.github.io'].includes(r.name))
       .sort((a, b) => b.stargazers_count - a.stargazers_count)
       .slice(0, 8);
     if (sorted.length === 0) {
@@ -337,7 +340,7 @@ async function fetchMedium() {
       return;
     }
     const pinnedItems = items.filter(item => isPinned(item.link));
-    const otherItems  = items.filter(item => !isPinned(item.link));
+    const otherItems = items.filter(item => !isPinned(item.link));
     pinnedItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, idx)));
     otherItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, pinnedItems.length + idx)));
   } catch (err) {
