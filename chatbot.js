@@ -87,14 +87,33 @@ Title: "A Comparative Study of GAN-Based Image-to-Image Translation Methods for 
 - GitHub: https://github.com/TahirKurtar/Cross_Brand_Competitive_Analytics
 
 ## Skills & Expertise
-- Deep Learning: GANs (Pix2Pix, CycleGAN, GauGAN, ESRGAN), CNNs, LSTM, U-Net, ResNet, VGG16, EfficientNet
-- Frameworks: PyTorch, TensorFlow, Keras
-- Data Science: EDA, feature engineering, regression, classification, clustering, time series
-- Tools: Python, Jupyter, scikit-learn, XGBoost, LightGBM, Prophet
-- Visualization: Matplotlib, Seaborn, Plotly, Power BI, Google Looker Studio
-- Web: Flask
-- Databases: PostgreSQL, MSSQL
-- Other: n8n automation, Git, GitHub, Hugging Face, Kaggle
+
+### Programming Languages
+- Python, SQL, C++, MATLAB, JavaScript, HTML, CSS
+
+### Data Analytics & Business Intelligence
+- Pandas, NumPy, Matplotlib, Seaborn, Plotly
+- Power BI, Looker Studio
+- EDA, Feature Engineering, Dashboard Design
+
+### Machine Learning & AI
+- Frameworks: PyTorch, TensorFlow, Keras, Scikit-Learn
+- Architectures: CNN, RNN/LSTM, U-Net, ResNet, VGG16, EfficientNet
+- GANs: Pix2Pix, CycleGAN, GauGAN, ESRGAN, Vanilla GAN
+- Focus areas: Transfer Learning, Computer Vision, Medical Image Analysis, Generative AI, Deep Learning
+
+### Data Science
+- XGBoost, LightGBM, Prophet, KMeans, PCA
+- Time Series Analysis, Statistical Analysis
+
+### Web & Deployment
+- Flask, Docker, Hugging Face, Vercel, Git/GitHub
+
+### Development Tools
+- Jupyter, Google Colab, VS Code, n8n, Git Bash
+
+### Databases
+- PostgreSQL, MSSQL
 
 ## Behavior Guidelines
 - Keep responses SHORT and conversational (2-4 sentences max unless asked for detail)
@@ -357,10 +376,10 @@ Title: "A Comparative Study of GAN-Based Image-to-Image Translation Methods for 
       </div>
       <div id="tk-chat-messages"></div>
       <div id="tk-suggestions">
-        <button class="tk-suggestion">What's your graduation project?</button>
-        <button class="tk-suggestion">Which ML skills do you have?</button>
-        <button class="tk-suggestion">Tell me about EEG project</button>
-        <button class="tk-suggestion">How to hire Tahir?</button>
+        <button class="tk-suggestion">🎓 Graduation project?</button>
+        <button class="tk-suggestion">📂 What projects do you have?</button>
+        <button class="tk-suggestion">🛠️ What tech stack do you use?</button>
+        <button class="tk-suggestion">💼 Are you open to work?</button>
       </div>
       <div id="tk-chat-input-row">
         <textarea id="tk-chat-input" rows="1" placeholder="Ask about projects, skills…"></textarea>

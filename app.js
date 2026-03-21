@@ -1,63 +1,9 @@
 /* ─────────────────────────────
    PORTFOLIO APP.JS
-   GitHub API + Medium RSS + Kaggle (static)
+   GitHub API only (Projects section)
 ───────────────────────────────*/
 const GITHUB_USER = 'TahirKurtar';
 const GITHUB_TOKEN = '';
-const MEDIUM_USER = '@tahirkurtar';
-const HF_USER = 'TahirKurtar';
-
-/* ── Pinned Medium yazıları — yeni pinli yazı eklemek için URL'yi buraya ekle ── */
-const PINNED_URLS = [
-  'https://medium.com/@tahirkurtar/can-deep-learning-replace-an-expensive-microscope-gans-for-afm-to-o%E2%82%82a-translation-e85ebb5f830c',
-];
-
-/* ── Utility: URL'nin pinned listesinde olup olmadığını kontrol et ── */
-function isPinned(url) {
-  try {
-    const slug = new URL(decodeURIComponent(url)).pathname.split('/').filter(Boolean).pop();
-    return PINNED_URLS.some(pinned => {
-      const pinnedSlug = new URL(decodeURIComponent(pinned)).pathname.split('/').filter(Boolean).pop();
-      return slug === pinnedSlug;
-    });
-  } catch {
-    return PINNED_URLS.includes(url);
-  }
-}
-
-/* ── Kaggle projeleri ── */
-const KAGGLE_PROJECTS = [
-  {
-    title: 'Fundamentals of Biomedical Signal Processing Proje',
-    url: 'https://www.kaggle.com/code/oulcanakca/fundamentals-of-biomedical-signal-processing-proje',
-    description: 'EEG Proje',
-    tags: ['Python', 'EEG'],
-  },
-  {
-    title: 'Project-1',
-    url: 'https://www.kaggle.com/code/tahirkurtar/project-1',
-    description: 'Projem benim',
-    tags: ['Python', 'Proje'],
-  },
-  {
-    title: 'Zillow Project',
-    url: 'https://www.kaggle.com/code/tahirkurtar/zillow-project',
-    description: 'Zillow Projesi',
-    tags: ['Python', 'Zillow'],
-  },
-  {
-    title: 'GauGAN',
-    url: 'https://www.kaggle.com/code/tahirkurtar/gaugan',
-    description: 'GauGAN for AFM-O2A Translation',
-    tags: ['Python', 'GAN'],
-  },
-  {
-    title: 'Fashion Image Similarity: VGG16 & KNN Recommender',
-    url: 'https://www.kaggle.com/code/tahirkurtar/visual-product-recommendation-system-vgg16-knn/edit',
-    description: 'Leveraging VGG16 and KNN, this intelligent engine instantly recommends fashion products by analyzing visual similarity, design, and texture.',
-    tags: ['Computer Vision', 'Deep Learning', 'Fashion', 'Recommendation System'],
-  }
-];
 
 /* ── Language color map ── */
 const LANG_COLORS = {
@@ -89,7 +35,6 @@ window.addEventListener('scroll', () => {
     });
   }
 })();
-
 
 /* ── Scroll progress bar ── */
 window.addEventListener('scroll', () => {
@@ -123,7 +68,6 @@ window.addEventListener('scroll', () => {
    MOUSE CANVAS PARTICLE SYSTEM
 ════════════════════════════ */
 (function initMouseCanvas() {
-  // Mobil cihazlarda mouse canvas devre dışı
   if (window.matchMedia('(pointer: coarse)').matches) {
     const canvas = document.getElementById('mouseCanvas');
     if (canvas) canvas.style.display = 'none';
@@ -238,7 +182,8 @@ async function fetchGitHub() {
       return;
     }
     sorted.forEach(repo => {
-      const langColor = LANG_COLORS[repo.language] || '#8892b0';
+      const lang = (repo.language === 'Jupyter Notebook') ? null : repo.language;
+      const langColor = LANG_COLORS[lang] || '#8892b0';
       const tags = [...(repo.topics || [])].filter(Boolean);
       const card = document.createElement('a');
       card.href = repo.html_url;
@@ -259,17 +204,8 @@ async function fetchGitHub() {
           ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
         </div>
         <div class="card-footer">
-          <span class="card-link">${repo.full_name} →</span>
-          <span class="card-meta">
-            ${repo.language ? `<span class="meta-item"><span class="lang-dot" style="background:${langColor}"></span>${repo.language}</span>` : ''}
-            <span class="meta-item">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
-              </svg>
-              ${fmt(repo.stargazers_count)}
-            </span>
-            <span class="meta-item">${timeAgo(repo.updated_at)}</span>
-          </span>
+          <span class="card-link">View Project →</span>
+          ${lang ? `<span class="meta-item"><span class="lang-dot" style="background:${langColor}"></span>${lang}</span>` : ''}
         </div>
       `;
       container.appendChild(card);
@@ -281,199 +217,8 @@ async function fetchGitHub() {
 }
 
 /* ════════════════════════════
-   MEDIUM — Card builder
-════════════════════════════ */
-function buildMediumCard(item, idx) {
-  const thumbMatch = item.thumbnail ||
-    (item.content && item.content.match(/<img[^>]+src="([^"]+)"/)?.[1]);
-  const tags = (item.categories || []).slice(0, 3);
-  const tmp = document.createElement('div');
-  tmp.innerHTML = item.description || '';
-  const desc = tmp.textContent.trim();
-  const pubDate = item.pubDate
-    ? new Date(item.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-    : '';
-  const card = document.createElement('a');
-  card.href = item.link;
-  card.target = '_blank';
-  card.rel = 'noopener noreferrer';
-  card.className = 'card';
-  card.setAttribute('id', `medPost-${idx}`);
-  card.innerHTML = `
-    ${thumbMatch
-      ? `<img class="card-thumb" src="${thumbMatch}" alt="${item.title}" loading="lazy" />`
-      : `<div class="card-thumb-placeholder">✍️ Medium Article</div>`
-    }
-    <div class="card-body">
-      <div class="card-icon-row">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#02b875">
-          <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/>
-        </svg>
-        <span class="card-source">medium.com</span>
-      </div>
-      <h3 class="card-title">${item.title}</h3>
-      <p class="card-desc">${truncate(desc, 150)}</p>
-      ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-    </div>
-    <div class="card-footer">
-      <span class="card-link">Read Article →</span>
-      <span class="card-meta">${pubDate}</span>
-    </div>
-  `;
-  return card;
-}
-
-/* ════════════════════════════
-   MEDIUM — Main fetch
-════════════════════════════ */
-async function fetchMedium() {
-  const container = document.getElementById('mediumCards');
-  const rssUrl = encodeURIComponent(`https://medium.com/feed/${MEDIUM_USER}`);
-  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&count=10`;
-  try {
-    const res = await fetch(apiUrl);
-    const data = await res.json();
-    if (data.status !== 'ok') throw new Error('RSS conversion error');
-    container.innerHTML = '';
-    const items = data.items || [];
-    if (items.length === 0) {
-      container.innerHTML = `<div class="error-card">No Medium articles found yet.</div>`;
-      return;
-    }
-    const pinnedItems = items.filter(item => isPinned(item.link));
-    const otherItems = items.filter(item => !isPinned(item.link));
-    pinnedItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, idx)));
-    otherItems.forEach((item, idx) => container.appendChild(buildMediumCard(item, pinnedItems.length + idx)));
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = `
-      <div class="error-card">
-        Medium articles could not be loaded.<br>
-        <small>${err.message}</small><br><br>
-        <a href="https://medium.com/${MEDIUM_USER}" target="_blank" style="color:#02b875">Visit Medium profile →</a>
-      </div>`;
-  }
-}
-
-/* ════════════════════════════
-   KAGGLE
-════════════════════════════ */
-function renderKaggle() {
-  const container = document.getElementById('kaggleCards');
-  container.innerHTML = '';
-  KAGGLE_PROJECTS.forEach((project, idx) => {
-    const card = document.createElement('a');
-    card.href = project.url;
-    card.target = '_blank';
-    card.rel = 'noopener noreferrer';
-    card.className = 'card';
-    card.setAttribute('id', `kaggleProject-${idx}`);
-    card.innerHTML = `
-      <div class="card-body">
-        <div class="card-icon-row">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#20beff">
-            <path d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.236.118-.353.354-.353h2.431c.234 0 .351.117.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.336z"/>
-          </svg>
-          <span class="card-source">kaggle.com</span>
-        </div>
-        <h3 class="card-title">${project.title}</h3>
-        <p class="card-desc">${project.description}</p>
-        ${project.tags.length ? `<div class="card-tags">${project.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-      </div>
-      <div class="card-footer">
-        <span class="card-link">View Notebook →</span>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-/* ════════════════════════════
-   HUGGING FACE
-════════════════════════════ */
-async function fetchHuggingFace() {
-  const container = document.getElementById('hfCards');
-  try {
-    const [modelsRes, spacesRes] = await Promise.all([
-      fetch(`https://huggingface.co/api/models?author=${HF_USER}`),
-      fetch(`https://huggingface.co/api/spaces?author=${HF_USER}`)
-    ]);
-    const models = modelsRes.ok ? await modelsRes.json() : [];
-    const spaces = spacesRes.ok ? await spacesRes.json() : [];
-
-    container.innerHTML = '';
-
-    const items = [
-      ...models.map(m => ({
-        type: 'Model',
-        id: m.modelId,
-        name: m.modelId.split('/').pop(),
-        url: `https://huggingface.co/${m.modelId}`,
-        pipeline: m.pipeline_tag || null,
-        downloads: m.downloads || 0,
-        likes: m.likes || 0,
-        tags: m.tags || []
-      })),
-      ...spaces.map(s => ({
-        type: 'Space',
-        id: s.id,
-        name: s.id.split('/').pop(),
-        url: `https://huggingface.co/spaces/${s.id}`,
-        pipeline: null,
-        downloads: 0,
-        likes: s.likes || 0,
-        tags: s.tags || []
-      }))
-    ];
-
-    if (items.length === 0) {
-      container.innerHTML = '<div class="error-card">No models or spaces found yet.</div>';
-      return;
-    }
-
-    items.forEach(item => {
-      const card = document.createElement('a');
-      card.href = item.url;
-      card.target = '_blank';
-      card.rel = 'noopener noreferrer';
-      card.className = 'card';
-      const displayTags = [item.type, item.pipeline, ...item.tags.filter(t => !t.startsWith('license:') && !t.startsWith('region:'))].filter(Boolean).slice(0, 5);
-      card.innerHTML = `
-        <div class="card-body">
-          <div class="card-icon-row">
-            <svg width="15" height="15" viewBox="0 0 120 120" fill="#FFD21E">
-              <path d="M37.2 58.5c-2.4 0-4.3-1.9-4.3-4.3 0-2.4 1.9-4.3 4.3-4.3s4.3 1.9 4.3 4.3c0 2.4-1.9 4.3-4.3 4.3zm45.6 0c-2.4 0-4.3-1.9-4.3-4.3 0-2.4 1.9-4.3 4.3-4.3s4.3 1.9 4.3 4.3c0 2.4-1.9 4.3-4.3 4.3zM60 110c-27.6 0-50-22.4-50-50S32.4 10 60 10s50 22.4 50 50-22.4 50-50 50zm0-90c-22.1 0-40 17.9-40 40s17.9 40 40 40 40-17.9 40-40-17.9-40-40-40z"/>
-            </svg>
-            <span class="card-source">huggingface.co / ${HF_USER}</span>
-          </div>
-          <h3 class="card-title">${item.name}</h3>
-          ${displayTags.length ? `<div class="card-tags">${displayTags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-        </div>
-        <div class="card-footer">
-          <span class="card-link">${item.id} →</span>
-          <span class="card-meta">
-            <span class="meta-item">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-              ${item.likes}
-            </span>
-            ${item.downloads > 0 ? `<span class="meta-item">↓ ${fmt(item.downloads)}</span>` : ''}
-          </span>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = `<div class="error-card">Hugging Face data could not be loaded.<br><small>${err.message}</small></div>`;
-  }
-}
-
-/* ════════════════════════════
    INIT
 ════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   fetchGitHub();
-  fetchMedium();
-  fetchHuggingFace();
-  renderKaggle();
 });
