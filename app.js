@@ -1,11 +1,9 @@
 /* ─────────────────────────────
    PORTFOLIO APP.JS
-   GitHub API only (Projects section)
 ───────────────────────────────*/
 const GITHUB_USER = 'TahirKurtar';
 const GITHUB_TOKEN = '';
 
-/* ── Language color map ── */
 const LANG_COLORS = {
   Python: '#3572A5', JavaScript: '#f1e05a', TypeScript: '#2b7489',
   Jupyter: '#DA5B0B', R: '#198CE7', HTML: '#e34c26', CSS: '#563d7c',
@@ -13,10 +11,100 @@ const LANG_COLORS = {
   'C++': '#f34b7d', Java: '#b07219',
 };
 
-/* ── Navbar scroll effect ── */
+/* ════════════════════════════
+   NETWORK BACKGROUND CANVAS
+════════════════════════════ */
+(function initNetwork() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+  document.body.insertBefore(canvas, document.body.firstChild);
+  const ctx = canvas.getContext('2d');
+
+  let W, H, nodes;
+  const COUNT = 70;
+  const MAX_DIST = 160;
+  const SPEED = 0.4;
+
+  function isLight() { return document.body.classList.contains('light-theme'); }
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function makeNodes() {
+    nodes = Array.from({ length: COUNT }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * SPEED,
+      vy: (Math.random() - 0.5) * SPEED,
+      r: Math.random() * 2 + 1.5,
+    }));
+  }
+
+  function draw() {
+    requestAnimationFrame(draw);
+    const light = isLight();
+    ctx.clearRect(0, 0, W, H);
+
+    const bg    = light ? '#f0f4ff' : '#080b14';
+    const nodeC = light ? 'rgba(99,102,241,' : 'rgba(99,102,241,';
+    const lineC = light ? 'rgba(99,102,241,' : 'rgba(99,102,241,';
+
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    for (let i = 0; i < COUNT; i++) {
+      const a = nodes[i];
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < 0 || a.x > W) a.vx *= -1;
+      if (a.y < 0 || a.y > H) a.vy *= -1;
+
+      for (let j = i + 1; j < COUNT; j++) {
+        const b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MAX_DIST) {
+          const alpha = (1 - dist / MAX_DIST) * (light ? 0.35 : 0.55);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.strokeStyle = lineC + alpha + ')';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      const alpha = light ? 0.7 : 0.9;
+      ctx.beginPath();
+      ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+      ctx.fillStyle = nodeC + alpha + ')';
+      ctx.shadowColor = light ? 'rgba(99,102,241,0.4)' : 'rgba(99,102,241,0.8)';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  window.addEventListener('resize', () => { resize(); makeNodes(); });
+  resize();
+  makeNodes();
+  draw();
+})();
+
+
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
-  nav.classList.toggle('scrolled', window.scrollY > 40);
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ── Scroll progress bar ── */
+window.addEventListener('scroll', () => {
+  const bar = document.getElementById('scrollProgress');
+  if (bar) {
+    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    bar.style.width = scrolled + '%';
+  }
 });
 
 /* ════════════════════════════
@@ -36,18 +124,10 @@ window.addEventListener('scroll', () => {
   }
 })();
 
-/* ── Scroll progress bar ── */
-window.addEventListener('scroll', () => {
-  const bar = document.getElementById('scrollProgress');
-  if (bar) {
-    const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-    bar.style.width = scrolled + '%';
-  }
-});
-
 /* ── Floating particles ── */
 (function spawnParticles() {
   const container = document.getElementById('bgParticles');
+  if (!container) return;
   const colors = ['#6366f1', '#8b5cf6', '#06b6d4', '#f0f6fc'];
   for (let i = 0; i < 30; i++) {
     const p = document.createElement('div');
@@ -138,23 +218,10 @@ window.addEventListener('scroll', () => {
   loop();
 })();
 
-/* ── Utility functions ── */
-function truncate(str, n) {
-  if (!str) return '';
-  return str.length > n ? str.slice(0, n) + '\u2026' : str;
-}
+/* ── Utility ── */
 function fmt(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
   return n;
-}
-function timeAgo(dateStr) {
-  const diff = (Date.now() - new Date(dateStr)) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 2592000) return Math.floor(diff / 86400) + 'd ago';
-  if (diff < 31536000) return Math.floor(diff / 2592000) + 'mo ago';
-  return Math.floor(diff / 31536000) + 'y ago';
 }
 
 /* ════════════════════════════
@@ -162,6 +229,7 @@ function timeAgo(dateStr) {
 ════════════════════════════ */
 async function fetchGitHub() {
   const container = document.getElementById('githubCards');
+  if (!container) return;
   try {
     const headers = {};
     if (GITHUB_TOKEN) headers['Authorization'] = `token ${GITHUB_TOKEN}`;
@@ -178,7 +246,7 @@ async function fetchGitHub() {
       .sort((a, b) => b.stargazers_count - a.stargazers_count)
       .slice(0, 20);
     if (sorted.length === 0) {
-      container.innerHTML = `<div class="error-card">No public repositories found yet.</div>`;
+      container.innerHTML = '<div class="error-card">No public repositories found yet.</div>';
       return;
     }
     sorted.forEach(repo => {
@@ -190,7 +258,6 @@ async function fetchGitHub() {
       card.target = '_blank';
       card.rel = 'noopener noreferrer';
       card.className = 'card';
-      card.setAttribute('id', `ghRepo-${repo.id}`);
       card.innerHTML = `
         <div class="card-body">
           <div class="card-icon-row">
@@ -204,7 +271,7 @@ async function fetchGitHub() {
           ${tags.length ? `<div class="card-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
         </div>
         <div class="card-footer">
-          <span class="card-link">View Project →</span>
+          <span class="card-link">View Project \u2192</span>
           ${lang ? `<span class="meta-item"><span class="lang-dot" style="background:${langColor}"></span>${lang}</span>` : ''}
         </div>
       `;
